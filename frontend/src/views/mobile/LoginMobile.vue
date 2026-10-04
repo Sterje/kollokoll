@@ -13,9 +13,8 @@
         class="login-logo"
       />
     </div>
-    <!-- Mock login, will implement real authentication later -->
     <div class="login-card">
-      <h1>Kollo-Koll</h1>
+      <h1>Kollo Koll</h1>
 
       <p class="subtitle">Ange PIN-kod för att logga in</p>
 
@@ -134,6 +133,7 @@ async function handleLogin() {
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 h1 {
