@@ -7,6 +7,11 @@
         alt="Halla Logo"
         class="login-logo"
       />
+      <img
+        src="../../assets/apple-touch-icon.png"
+        alt="Apple Touch Icon"
+        class="login-logo"
+      />
     </div>
     <!-- Mock login, will implement real authentication later -->
     <div class="login-card">
@@ -118,6 +123,7 @@ async function handleLogin() {
 .login-logo {
   width: 120px;
   height: auto;
+  margin: 12px;
 }
 
 .login-card {
