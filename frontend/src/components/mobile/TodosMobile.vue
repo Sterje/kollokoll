@@ -1,10 +1,9 @@
 <template>
   <div class="todos-wrapper">
-    <button class="back-button" @click="$router.back()">
-      <ChevronLeft :size="20" />
-    </button>
-    <div class="todos-header">
-      <h2>Att göra</h2>
+    <div class="todo-tonight-buttons">
+      <button class="back-button" @click="$router.back()">
+        <ChevronLeft :size="20" />
+      </button>
       <button
         class="todo-card-add-btn"
         aria-label="Lägg till uppgift"
@@ -12,6 +11,10 @@
       >
         <Plus :size="20" />
       </button>
+    </div>
+
+    <div class="todos-header">
+      <h2>Att göra</h2>
     </div>
 
     <div
@@ -427,6 +430,12 @@ onMounted(async () => {
     sans-serif;
   max-width: 500px;
   margin: 0 auto;
+}
+
+.todo-tonight-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
 .back-button {
