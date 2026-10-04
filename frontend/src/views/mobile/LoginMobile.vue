@@ -17,7 +17,7 @@
       <form @submit.prevent="handleLogin">
         <input
           v-model="pin"
-          type="password"
+          type="text"
           inputmode="numeric"
           pattern="[0-9]*"
           maxlength="6"
@@ -29,7 +29,9 @@
           {{ errorMessage }}
         </p>
 
-        <button type="submit" @click="handleLogin">Logga in</button>
+        <button type="submit" :disabled="isLoading">
+          {{ isLoading ? "Loggar in..." : "Logga in" }}
+        </button>
       </form>
     </div>
   </main>
@@ -37,12 +39,20 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { createClient } from "@supabase/supabase-js";
 import router from "../../router";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabasePublishableKey = import.meta.env
+  .VITE_SUPABASE_PUBLISHABLE_KEY as string;
+
+const supabase = createClient(supabaseUrl, supabasePublishableKey);
 
 const pin = ref("");
 const errorMessage = ref("");
+const isLoading = ref(false);
 
-function handleLogin() {
+async function handleLogin() {
   errorMessage.value = "";
 
   if (!pin.value) {
@@ -50,9 +60,41 @@ function handleLogin() {
     return;
   }
 
-  router.push("/dashboard");
+  isLoading.value = true;
 
-  console.log("PIN:", pin.value);
+  try {
+    const { data, error } = await supabase.functions.invoke("login-with-pin", {
+      body: {
+        pin: pin.value,
+      },
+    });
+
+    if (error) {
+      errorMessage.value = "Fel PIN-kod.";
+      return;
+    }
+
+    if (!data?.session) {
+      errorMessage.value = "Kunde inte logga in.";
+      return;
+    }
+
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    });
+
+    if (sessionError) {
+      errorMessage.value = "Kunde inte skapa inloggningen.";
+      return;
+    }
+
+    await router.push("/menu");
+  } catch {
+    errorMessage.value = "Ett oväntat fel uppstod.";
+  } finally {
+    isLoading.value = false;
+  }
 }
 </script>
 
@@ -117,6 +159,7 @@ input {
   text-align: center;
   letter-spacing: 4px;
   outline: none;
+  -webkit-text-security: disc; /* döljer PIN utan type=password */
 }
 
 input:focus {
