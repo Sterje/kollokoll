@@ -36,7 +36,6 @@ const todosCount = ref(0);
 .menu-mobile-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100vh;
 }
 
 .menu-mobile-content {
