@@ -26,6 +26,10 @@
         role="status"
         aria-label="Laddar"
       ></div>
+      <span v-else-if="!hasTodos" class="no-info">
+        Ingen information för tillfället, tryck på + knappen för att lägga till
+        en uppgift.
+      </span>
       <div
         v-else
         class="todo-card-content"
@@ -231,6 +235,8 @@ const hasMoreTodos = computed(() => todos.value.length > 6);
 const visibleTodos = computed(() =>
   showAll.value ? todos.value : todos.value.slice(0, 6),
 );
+
+const hasTodos = computed(() => todos.value.length > 0);
 
 const fetchTodos = async () => {
   const { data, error } = await supabase
@@ -649,6 +655,14 @@ onMounted(async () => {
 
 .show-all-button:active {
   background-color: #fee2e2;
+}
+
+.no-info {
+  display: block;
+  text-align: center;
+  color: #000000;
+  line-height: 1.4;
+  font-size: 0.9rem;
 }
 
 /* Modaler */

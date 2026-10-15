@@ -23,7 +23,8 @@
       ></div>
 
       <span v-else-if="!hasInfo" class="no-info">
-        Ingen information för tillfället
+        Ingen information för tillfället, tryck på + knappen för att lägga till
+        information.
       </span>
 
       <div
@@ -865,8 +866,10 @@ onMounted(async () => {
 }
 .no-info {
   text-align: center;
-  color: #ffffff;
+  color: #000000;
   font-size: 1rem;
+  margin-top: 16px;
+  line-height: 1.4;
 }
 </style>
 
