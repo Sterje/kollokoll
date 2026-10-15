@@ -13,6 +13,10 @@
       </div>
     </div>
     <InfoMobile />
+    <button class="logout-button" type="button" @click="handleLogout">
+      <LogOut :size="22" />
+      <span>Logga ut</span>
+    </button>
     <!-- Monteras dolda enbart för att få antalet todos via emit -->
     <div hidden>
       <TodoTonight @count="tonightCount = $event" />
@@ -26,11 +30,17 @@ import { useRouter } from "vue-router";
 import InfoMobile from "../../components/mobile/InfoMobile.vue";
 import TodoTonight from "../../components/mobile/TodoTonight.vue";
 import TodosMobile from "../../components/mobile/TodosMobile.vue";
-import { ListTodo } from "lucide-vue-next";
+import { ListTodo, LogOut } from "lucide-vue-next";
+import { supabase } from "../../lib/supabase";
 
 const router = useRouter();
 const tonightCount = ref(0);
 const todosCount = ref(0);
+
+async function handleLogout() {
+  await supabase.auth.signOut();
+  await router.push("/");
+}
 </script>
 <style scoped>
 .menu-mobile-wrapper {
@@ -98,5 +108,28 @@ const todosCount = ref(0);
 #one {
   background-color: #ca0b0b;
   color: #ffffff;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 15px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background-color: #e5e7eb;
+  color: #1e293b;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.logout-button:active {
+  transform: scale(0.98);
 }
 </style>

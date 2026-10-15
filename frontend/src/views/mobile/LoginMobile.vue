@@ -43,14 +43,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { createClient } from "@supabase/supabase-js";
 import router from "../../router";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabasePublishableKey = import.meta.env
-  .VITE_SUPABASE_PUBLISHABLE_KEY as string;
-
-const supabase = createClient(supabaseUrl, supabasePublishableKey);
+import { supabase } from "../../lib/supabase";
 
 const pin = ref("");
 const errorMessage = ref("");
