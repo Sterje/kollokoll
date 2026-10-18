@@ -38,6 +38,13 @@ const routes: RouteRecordRaw[] = [
       showNavbar: true,
     },
   },
+
+  {
+    path: "/todosredesign",
+    name: "TodosMobileRedesign",
+    component: () => import("./components/mobile/TodosMobileRedesign.vue"),
+    meta: { showNavbar: true },
+  },
 ];
 
 const router = createRouter({
