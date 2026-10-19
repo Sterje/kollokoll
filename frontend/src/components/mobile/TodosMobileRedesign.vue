@@ -2,7 +2,7 @@
   <div class="todos-wrapper">
     <div class="todo-header-add">
       <div class="todo-header">
-        <h2>Att göra idag {{ formatedDate(date) }}</h2>
+        <h2>Att göra</h2>
         <button class="todo-card-add-btn" aria-label="Lägg till uppgift">
           <Plus :size="24" />
         </button>

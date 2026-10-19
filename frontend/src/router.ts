@@ -45,6 +45,14 @@ const routes: RouteRecordRaw[] = [
     component: () => import("./components/mobile/TodosMobileRedesign.vue"),
     meta: { showNavbar: true },
   },
+
+  {
+    path: "/todostonightredesign",
+    name: "TodosTonightMobileRedesign",
+    component: () =>
+      import("./components/mobile/TodosTonightMobileRedesign.vue"),
+    meta: { showNavbar: true },
+  },
 ];
 
 const router = createRouter({
