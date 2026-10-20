@@ -1,42 +1,30 @@
 <template>
   <div class="todos-wrapper">
-    <div class="todo-tonight-buttons">
-      <button class="back-button" @click="$router.back()">
-        <ChevronLeft :size="20" />
-      </button>
-      <button
-        class="todo-card-add-btn"
-        aria-label="Lägg till uppgift"
-        @click="openAddTodoModalFunction()"
-      >
-        <Plus :size="20" />
-      </button>
+    <button class="back-button" aria-label="Tillbaka" @click="$router.back()">
+      <ChevronLeft :size="30" />
+    </button>
+    <div class="todo-header-add">
+      <div class="todo-header">
+        <h2>Att göra</h2>
+        <button
+          class="todo-card-add-btn"
+          aria-label="Lägg till uppgift"
+          @click="openAddModalFunction()"
+        >
+          <Plus :size="30" />
+        </button>
+      </div>
+      <div class="todo-add-btn"></div>
     </div>
-
-    <div class="todos-header">
-      <h2>Att göra</h2>
+    <div v-if="loading" class="loader-container">
+      <div class="loader" role="status" aria-label="Laddar"></div>
     </div>
-
-    <div
-      class="todos-card"
-      :class="{ 'todos-card-collapsed': !showAll && hasMoreTodos }"
-    >
-      <div
-        v-if="isLoading"
-        class="loader"
-        role="status"
-        aria-label="Laddar"
-      ></div>
-      <span v-else-if="!hasTodos" class="no-info">
-        Ingen information för tillfället, tryck på + knappen för att lägga till
-        en uppgift.
-      </span>
-      <div
-        v-else
-        class="todo-card-content"
-        v-for="todo in visibleTodos"
-        :key="todo.id"
-      >
+    <span v-else-if="!hasTodos && !loading" class="no-info">
+      Inga uppgifter för tillfället, tryck på + knappen för att lägga till en
+      uppgift.
+    </span>
+    <div v-else class="todo-list">
+      <div class="todo-item" v-for="todo in todos" :key="todo.id">
         <label class="checkbox-container">
           <input
             type="checkbox"
@@ -46,20 +34,18 @@
           />
           <span class="checkmark"></span>
         </label>
-
-        <div class="todo-card-content-todo">
-          <div class="todo-main-info">
-            <span class="todo-created-at">{{
-              formatCreatedAt(todo.created_at)
-            }}</span>
-            <p
-              class="todo-title"
-              :class="{ 'completed-text': todo.is_completed }"
-            >
-              {{ todo.title }}
-            </p>
+        <div class="todo-content">
+          <div class="todo-date-author-container">
+            <div class="todo-date">
+              {{ formatedCreatedAt(todo.created_at) }}
+            </div>
+            <div class="todo-author">
+              {{ todo.author }}
+            </div>
           </div>
-
+          <div class="todo-title">
+            {{ todo.title }}
+          </div>
           <div
             v-if="todo.todo_comments && todo.todo_comments.length > 0"
             class="comments-list"
@@ -76,28 +62,20 @@
             </p>
           </div>
         </div>
-
-        <button
-          class="todo-card-content-comment-button"
-          aria-label="Kommentera"
-          @click="openAddTodoCommentModalFunction(todo)"
-        >
-          <MessageCircleMore :size="20" />
-        </button>
+        <div class="todo-comment-btn">
+          <button
+            class="todo-card-content-comment-button"
+            aria-label="Kommentera"
+            @click="openAddTodoCommentFunction(todo)"
+          >
+            <MessageCircleMore :size="20" />
+          </button>
+        </div>
       </div>
     </div>
-
-    <button
-      v-if="hasMoreTodos"
-      class="show-all-button"
-      type="button"
-      @click="showAll = !showAll"
-    >
-      {{ showAll ? "Visa färre" : "Visa alla" }}
-    </button>
   </div>
 
-  <!-- Modal: Lägg till todo -->
+  <!-- Add Todo Modal -->
   <Transition name="fade">
     <div
       v-if="openAddTodoModal"
@@ -113,6 +91,12 @@
           placeholder="Vad behöver göras?"
           class="modal-input modal-textarea"
         ></textarea>
+        <input
+          type="text"
+          v-model="newTodoAuthor"
+          class="modal-input"
+          placeholder="Namn (frivilligt)"
+        />
         <div class="modal-actions">
           <button type="button" @click="addTodo" class="btn btn-primary">
             Lägg till uppgift
@@ -128,46 +112,7 @@
       </div>
     </div>
   </Transition>
-
-  <!-- Modal: Lägg till kommentar -->
-  <Transition name="fade">
-    <div
-      v-if="openAddTodoCommentModal"
-      class="modal-overlay"
-      @click.self="openAddTodoCommentModal = false"
-    >
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3>Lägg till kommentar</h3>
-        </div>
-        <textarea
-          v-model="newTodoComment"
-          placeholder="Skriv din kommentar här..."
-          class="modal-input modal-textarea"
-        ></textarea>
-        <input
-          type="text"
-          v-model="newTodoCommentAuthor"
-          class="modal-input"
-          placeholder="Ditt namn"
-        />
-        <div class="modal-actions">
-          <button type="button" @click="addTodoComment" class="btn btn-primary">
-            Lägg till kommentar
-          </button>
-          <button
-            type="button"
-            @click="openAddTodoCommentModal = false"
-            class="btn btn-secondary"
-          >
-            Avbryt
-          </button>
-        </div>
-      </div>
-    </div>
-  </Transition>
-
-  <!-- Sticky action bar vid markering -->
+  <!-- Complete one or more todos -->
   <Transition name="slide-up">
     <div
       v-if="todos.some((todo) => todo.is_completed)"
@@ -189,12 +134,88 @@
       </button>
     </div>
   </Transition>
+  <!-- Add Todo Comment Modal -->
+  <Transition name="fade">
+    <div
+      v-if="openAddTodoCommentModal"
+      class="modal-overlay"
+      @click.self="openAddTodoCommentModal = false"
+    >
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Lägg till kommentar</h3>
+        </div>
+        <textarea
+          v-model="newTodoComment"
+          placeholder="Skriv din kommentar här..."
+          class="modal-input modal-textarea"
+        ></textarea>
+        <input
+          type="text"
+          v-model="newTodoCommentAuthor"
+          class="modal-input"
+          placeholder="Ditt namn (frivilligt)"
+        />
+        <div class="modal-actions">
+          <button type="button" @click="addTodoComment" class="btn btn-primary">
+            Lägg till kommentar
+          </button>
+          <button
+            type="button"
+            @click="openAddTodoCommentModal = false"
+            class="btn btn-secondary"
+          >
+            Avbryt
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
-
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import { MessageCircleMore, Plus, ChevronLeft } from "lucide-vue-next";
 import { createClient } from "@supabase/supabase-js";
+import { ref, computed, watch } from "vue";
+import { MessageCircleMore, Plus, ChevronLeft } from "lucide-vue-next";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const todos = ref<Todo[]>([]);
+const loading = ref(true);
+const date = new Date();
+const newTodoTitle = ref("");
+const newTodoAuthor = ref("");
+const openAddTodoCommentModal = ref(false);
+const newTodoComment = ref("");
+const newTodoCommentAuthor = ref("");
+const selectedTodoId = ref<string | null>(null);
+
+const openAddTodoModal = ref(false);
+
+const hasTodos = computed(() => todos.value.length > 0);
+
+const formatedDate = (date: Date) =>
+  new Intl.DateTimeFormat("sv-SE", {
+    dateStyle: "short",
+  }).format(date);
+
+const formatedCreatedAt = (createdAt: string) =>
+  new Intl.DateTimeFormat("sv-SE", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(createdAt));
+
+const openAddModalFunction = () => {
+  openAddTodoModal.value = true;
+};
+
+const emit = defineEmits<{ count: [count: number] }>();
+watch(
+  () => todos.value.length,
+  (n) => emit("count", n),
+  { immediate: true },
+);
 
 type TodoComment = {
   id?: string;
@@ -208,61 +229,20 @@ type Todo = {
   title: string;
   is_completed: boolean;
   todo_comments: TodoComment[];
-};
-
-const showAll = ref(false);
-const openAddTodoModal = ref(false);
-const openAddTodoCommentModal = ref(false);
-const newTodoTitle = ref("");
-const newTodoComment = ref("");
-const newTodoCommentAuthor = ref("");
-const selectedDepartmentId = ref("");
-const selectedTodoId = ref<string | null>(null);
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-const todos = ref<Todo[]>([]);
-const isLoading = ref(true);
-const departments = ref<{ id: string; name: string }[]>([]);
-
-const emit = defineEmits<{ count: [count: number] }>();
-watch(
-  () => todos.value.length,
-  (n) => emit("count", n),
-  { immediate: true },
-);
-
-const hasMoreTodos = computed(() => todos.value.length > 6);
-const visibleTodos = computed(() =>
-  showAll.value ? todos.value : todos.value.slice(0, 6),
-);
-
-const hasTodos = computed(() => todos.value.length > 0);
-
-const fetchDepartments = async () => {
-  const { data, error } = await supabase
-    .from("departments")
-    .select("id, name")
-    .order("name");
-
-  if (error) {
-    console.error("Fel vid hämtning av avdelningar:", error);
-    return;
-  }
-
-  departments.value = data || [];
+  author: string | null;
 };
 
 const fetchTodos = async () => {
+  loading.value = true;
   const { data, error } = await supabase
     .from("todos")
     .select(
-      "id, title, is_completed, created_at, todo_comments(id, comment, author, created_at)",
+      "id, title, is_completed, created_at, author, todo_comments(id, comment, author, created_at)",
     )
     .eq("is_tonight", false)
     .order("created_at", { ascending: false });
+
+  loading.value = false;
 
   if (error) {
     console.error("Fel vid hämtning av todos:", error);
@@ -275,42 +255,29 @@ const fetchTodos = async () => {
   })) as Todo[];
 };
 
-const formatCreatedAt = (createdAt: string) =>
-  new Intl.DateTimeFormat("sv-SE", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(new Date(createdAt));
-
-const openAddTodoModalFunction = () => {
-  openAddTodoModal.value = true;
-};
-
 const addTodo = async () => {
   const title = newTodoTitle.value.trim();
+  const author = newTodoAuthor.value.trim();
   if (!title) return;
 
   const { data, error } = await supabase
     .from("todos")
     .insert({
       title,
-      department_id: selectedDepartmentId.value || null,
+      author,
       is_tonight: false,
       is_completed: false,
-      created_by: "Mock user",
     })
     .select("id")
     .single();
 
   if (error) {
-    console.error("Fel vid tillägg av uppgift:", error);
+    console.error("Fel vid tillägg av kvällens uppgift:", error);
     return;
   }
-
   await fetchTodos();
   newTodoTitle.value = "";
-  selectedDepartmentId.value = "";
   openAddTodoModal.value = false;
-
   return data;
 };
 
@@ -325,8 +292,34 @@ const toggleTodo = async (todo: Todo, event: Event) => {
 
   if (error) {
     todo.is_completed = !nextValue;
-    console.error("Fel vid uppdatering av todo:", error);
+    console.error("Fel vid uppdatering av kvällens uppgift:", error);
   }
+};
+
+const deleteCompletedTodos = async () => {
+  const { error } = await supabase
+    .from("todos")
+    .delete()
+    .eq("is_completed", true);
+
+  if (error) {
+    console.error("Fel vid borttagning av slutförda uppgifter:", error);
+    return;
+  }
+
+  const toast = document.createElement("div");
+  toast.textContent = "Slutförda uppgifter borttagna";
+  toast.className = "custom-toast";
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("toast-hide");
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 300);
+  }, 2500);
+
+  await fetchTodos();
 };
 
 const cancelCompletedTodos = async () => {
@@ -349,7 +342,7 @@ const cancelCompletedTodos = async () => {
   await fetchTodos();
 };
 
-const openAddTodoCommentModalFunction = (todo: Todo) => {
+const openAddTodoCommentFunction = (todo: Todo) => {
   selectedTodoId.value = todo.id;
   openAddTodoCommentModal.value = true;
 };
@@ -382,163 +375,58 @@ const addTodoComment = async () => {
   return data;
 };
 
-const deleteCompletedTodos = async () => {
-  const { error } = await supabase
-    .from("todos")
-    .delete()
-    .eq("is_completed", true);
-
-  if (error) {
-    console.error("Fel vid borttagning av slutförda uppgifter:", error);
-    return;
-  }
-
-  const toast = document.createElement("div");
-  toast.textContent = "Slutförda uppgifter borttagna";
-  toast.className = "custom-toast";
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.classList.add("toast-hide");
-    setTimeout(() => {
-      document.body.removeChild(toast);
-    }, 300);
-  }, 2500);
-
-  await fetchTodos();
-};
-
-onMounted(async () => {
-  try {
-    await Promise.all([fetchDepartments(), fetchTodos()]);
-  } finally {
-    isLoading.value = false;
-  }
-});
+fetchTodos();
 </script>
 
 <style scoped>
-/* Modern variabelstruktur */
 .todos-wrapper {
-  --primary-color: #2843bb;
-  --primary-hover: #1f3496;
-  --bg-gradient: linear-gradient(135deg, #2843bb 0%, #1a2a78 100%);
-  --card-bg: #ffffff;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
-  --radius-lg: 16px;
-  --radius-md: 10px;
-
-  padding: 16px 12px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.todo-tonight-buttons {
+  height: 100vh;
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
+  flex-direction: column;
+  padding: 12px;
+  font-family: Arial, sans-serif;
 }
 
 .back-button {
-  background-color: var(--primary-color);
-  color: #ffffff;
+  background: none;
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(40, 67, 187, 0.3);
-  transition:
-    transform 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.back-button:active {
-  transform: scale(0.92);
-}
-.todos-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  color: #000000;
   margin-bottom: 12px;
 }
 
-.todos-header h2 {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--text-main);
-  margin: 0;
+.todo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .todo-card-add-btn {
-  background-color: var(--primary-color);
-  color: #ffffff;
+  background: none;
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(40, 67, 187, 0.3);
-  transition:
-    transform 0.2s ease,
-    background-color 0.2s ease;
+  padding: 4px;
+  color: #000000;
 }
 
-.todo-card-add-btn:active {
-  transform: scale(0.92);
-}
-
-.todos-card {
-  position: relative;
+.todo-item {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-evenly;
   padding: 12px;
-  border-radius: var(--radius-lg);
-  background: var(--bg-gradient);
-  box-shadow: 0 10px 25px -5px rgba(40, 67, 187, 0.4);
-}
+  margin: 8px 0;
+  border-radius: 20px;
+  background-color: #d0ddff;
 
-.todos-card-collapsed {
-  max-height: 380px;
-  overflow: hidden;
-}
-
-.todos-card-collapsed::after {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 80px;
-  pointer-events: none;
-  content: "";
-  background: linear-gradient(to bottom, rgba(26, 42, 120, 0), #1a2a78);
-  border-bottom-left-radius: var(--radius-lg);
-  border-bottom-right-radius: var(--radius-lg);
-}
-
-.todo-card-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  background-color: var(--card-bg);
-  border-radius: var(--radius-md);
-  padding: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-/* Anpassad kryssruta för touch */
+/* Touch-anpassad kryssruta */
 .checkbox-container {
   position: relative;
   display: inline-block;
@@ -563,7 +451,7 @@ onMounted(async () => {
   width: 24px;
   background-color: #f1f5f9;
   border: 2px solid #cbd5e1;
-  border-radius: 6px;
+  border-radius: 50%;
   transition: all 0.2s ease;
 }
 
@@ -589,34 +477,43 @@ onMounted(async () => {
   display: block;
 }
 
-.todo-card-content-todo {
-  min-width: 0;
-  flex: 1;
-}
-
-.todo-main-info {
+.todo-content {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  margin-left: 8px;
 }
 
-.todo-created-at {
-  font-size: 0.725rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  margin-bottom: 2px;
+.todo-date-author-container {
+  display: flex;
+}
+
+.todo-author {
+  font-size: 12px;
+  color: #888;
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.todo-card-content-comment-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: #000000;
+}
+
+.todo-date {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
 }
 
 .todo-title {
-  font-size: 0.95rem;
-  color: var(--text-main);
-  margin: 0;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-.completed-text {
-  text-decoration: line-through;
-  color: var(--text-muted);
+  font-size: 16px;
 }
 
 .comments-list {
@@ -640,54 +537,28 @@ onMounted(async () => {
   color: var(--text-main);
 }
 
-.todo-card-content-comment-button {
+.loader-container {
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 6px;
-  color: #94a3b8;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
+  padding: 40px 0;
 }
 
-.todo-card-content-comment-button:active {
-  background-color: #f1f5f9;
-  color: var(--primary-color);
+.loader {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #000000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.show-all-button {
-  display: block;
-  margin: 16px auto 0;
-  padding: 10px 20px;
-  color: var(--primary-color);
-  background-color: #eef2ff;
-  border: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.show-all-button:active {
-  background-color: #e0e7ff;
-}
-
-.no-info {
-  display: block;
-  text-align: center;
-  color: #000000;
-  line-height: 1.4;
-  font-size: 0.9rem;
-}
-
-/* Modaler */
+/* Modal styles */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -718,6 +589,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 @media (min-width: 640px) {
@@ -732,8 +604,7 @@ onMounted(async () => {
   color: var(--text-main);
 }
 
-.modal-input,
-.modal-select {
+.modal-input {
   width: 100%;
   padding: 12px;
   border: 1px solid var(--border-color);
@@ -745,11 +616,10 @@ onMounted(async () => {
   outline: none;
   font-family: inherit;
   transition: border-color 0.2s ease;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
 }
 
-.modal-input:focus,
-.modal-select:focus {
+.modal-input:focus {
   border-color: var(--primary-color);
   background-color: #ffffff;
 }
@@ -788,12 +658,6 @@ onMounted(async () => {
   color: #ffffff;
 }
 
-.btn-secondary {
-  background-color: #f1f5f9;
-  color: #475569;
-}
-
-/* Bottenfält för markerade uppgifter */
 .completed-todos-btn-container {
   display: flex;
   gap: 10px;
@@ -859,68 +723,5 @@ onMounted(async () => {
 .slide-up-leave-to {
   transform: translateY(100%);
   opacity: 0;
-}
-.loader {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  margin: 16px auto;
-  border: 3px solid rgba(255, 255, 255, 0.35);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-</style>
-
-<style>
-/* Global style för toast med mjuk animering */
-.custom-toast {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 400px;
-  background-color: #10b981;
-  color: #ffffff;
-  padding: 12px 16px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-align: center;
-  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
-  z-index: 200;
-  animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.custom-toast.toast-hide {
-  animation: toastOut 0.3s ease forwards;
-}
-
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -20px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-@keyframes toastOut {
-  from {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-  to {
-    opacity: 0;
-    transform: translate(-50%, -20px);
-  }
 }
 </style>

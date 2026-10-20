@@ -2,6 +2,7 @@ import Login from "./views/mobile/LoginMobile.vue";
 import MenuMobile from "./views/mobile/MenuMobile.vue";
 import TodosMobile from "./components/mobile/TodosMobile.vue";
 import TodoTonight from "./components/mobile/TodoTonight.vue";
+import InfoMobile from "./components/mobile/InfoMobile.vue";
 import {
   createRouter,
   createWebHistory,
@@ -30,6 +31,13 @@ const routes: RouteRecordRaw[] = [
   },
 
   {
+    path: "/info",
+    name: "InfoMobile",
+    component: InfoMobile,
+    meta: { showNavbar: true },
+  },
+
+  {
     path: "/menu",
     name: "MenuMobile",
     component: MenuMobile,
@@ -37,21 +45,6 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: true,
       showNavbar: true,
     },
-  },
-
-  {
-    path: "/todosredesign",
-    name: "TodosMobileRedesign",
-    component: () => import("./components/mobile/TodosMobileRedesign.vue"),
-    meta: { showNavbar: true },
-  },
-
-  {
-    path: "/todostonightredesign",
-    name: "TodosTonightMobileRedesign",
-    component: () =>
-      import("./components/mobile/TodosTonightMobileRedesign.vue"),
-    meta: { showNavbar: true },
   },
 ];
 
