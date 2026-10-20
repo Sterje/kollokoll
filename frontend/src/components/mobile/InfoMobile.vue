@@ -172,7 +172,7 @@
 </template>
 <script setup lang="ts">
 import { createClient } from "@supabase/supabase-js";
-import { ref, computed, watch } from "vue";
+import { ref, watch } from "vue";
 import { MessageCircleMore, Plus, ChevronLeft } from "lucide-vue-next";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
@@ -181,7 +181,6 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const infos = ref<Info[]>([]);
 const loading = ref(true);
-const date = new Date();
 const newInfoText = ref("");
 const newInfoAuthor = ref("");
 const openAddInfoCommentModal = ref(false);
@@ -190,13 +189,6 @@ const newInfoCommentAuthor = ref("");
 const selectedInfoId = ref<string | null>(null);
 
 const openAddInfoModal = ref(false);
-
-const hasInfos = computed(() => infos.value.length > 0);
-
-const formatedDate = (date: Date) =>
-  new Intl.DateTimeFormat("sv-SE", {
-    dateStyle: "short",
-  }).format(date);
 
 const formatedCreatedAt = (createdAt: string) =>
   new Intl.DateTimeFormat("sv-SE", {
