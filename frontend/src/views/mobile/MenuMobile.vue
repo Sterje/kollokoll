@@ -3,7 +3,7 @@
     <div class="menu-mobile-content">
       <div class="menu-mobile-item" id="one" @click="router.push('/info')">
         <span class="menu-mobile-badge">{{ infoCount }}</span>
-        <ListTodo :size="35" />
+        <Info :size="35" />
         <span class="menu-mobile-text">Information</span>
       </div>
       <div class="menu-mobile-item" id="two" @click="router.push('/todos')">
@@ -30,7 +30,7 @@ import { useRouter } from "vue-router";
 import InfoMobile from "../../components/mobile/InfoMobile.vue";
 import TodosTonightMobile from "../../components/mobile/TodoTonight.vue";
 import TodosMobile from "../../components/mobile/TodosMobile.vue";
-import { ListTodo, LogOut } from "lucide-vue-next";
+import { ListTodo, LogOut, Info } from "lucide-vue-next";
 import { supabase } from "../../lib/supabase";
 
 const router = useRouter();
