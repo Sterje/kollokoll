@@ -1,10 +1,10 @@
 <template>
   <div class="menu-mobile-wrapper">
     <div class="menu-mobile-content">
-      <div class="menu-mobile-item" id="one" @click="router.push('/tonight')">
-        <span class="menu-mobile-badge">{{ tonightCount }}</span>
+      <div class="menu-mobile-item" id="one" @click="router.push('/info')">
+        <span class="menu-mobile-badge">{{ infoCount }}</span>
         <ListTodo :size="35" />
-        <span class="menu-mobile-text">Kväll / Helg</span>
+        <span class="menu-mobile-text">Information</span>
       </div>
       <div class="menu-mobile-item" id="two" @click="router.push('/todos')">
         <span class="menu-mobile-badge">{{ todosCount }}</span>
@@ -12,14 +12,14 @@
         <span class="menu-mobile-text">Att göra</span>
       </div>
     </div>
-    <InfoMobile />
+    <TodosTonightMobile />
     <button class="logout-button" type="button" @click="handleLogout">
       <LogOut :size="22" />
       <span>Logga ut</span>
     </button>
     <!-- Monteras dolda enbart för att få antalet todos via emit -->
     <div hidden>
-      <TodoTonight @count="tonightCount = $event" />
+      <InfoMobile @count="infoCount = $event" />
       <TodosMobile @count="todosCount = $event" />
     </div>
   </div>
@@ -28,13 +28,13 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import InfoMobile from "../../components/mobile/InfoMobile.vue";
-import TodoTonight from "../../components/mobile/TodoTonight.vue";
+import TodosTonightMobile from "../../components/mobile/TodoTonight.vue";
 import TodosMobile from "../../components/mobile/TodosMobile.vue";
 import { ListTodo, LogOut } from "lucide-vue-next";
 import { supabase } from "../../lib/supabase";
 
 const router = useRouter();
-const tonightCount = ref(0);
+const infoCount = ref(0);
 const todosCount = ref(0);
 
 async function handleLogout() {
@@ -80,8 +80,8 @@ async function handleLogout() {
 }
 
 #two {
-  background-color: #2843bb;
-  color: #ffffff;
+  background-color: #d0ddff;
+  color: #1e293b;
 }
 .menu-mobile-badge {
   position: absolute;
@@ -106,8 +106,8 @@ async function handleLogout() {
   margin-top: 5px;
 }
 #one {
-  background-color: #ca0b0b;
-  color: #ffffff;
+  background-color: #d0f4ea;
+  color: #1e293b;
 }
 
 .logout-button {

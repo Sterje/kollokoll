@@ -2,6 +2,7 @@ import Login from "./views/mobile/LoginMobile.vue";
 import MenuMobile from "./views/mobile/MenuMobile.vue";
 import TodosMobile from "./components/mobile/TodosMobile.vue";
 import TodoTonight from "./components/mobile/TodoTonight.vue";
+import InfoMobile from "./components/mobile/InfoMobile.vue";
 import {
   createRouter,
   createWebHistory,
@@ -26,6 +27,13 @@ const routes: RouteRecordRaw[] = [
     path: "/tonight",
     name: "TodoTonight",
     component: TodoTonight,
+    meta: { showNavbar: true },
+  },
+
+  {
+    path: "/info",
+    name: "InfoMobile",
+    component: InfoMobile,
     meta: { showNavbar: true },
   },
 
