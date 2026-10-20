@@ -603,7 +603,7 @@ fetchTodos();
   padding: 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  font-size: 0.95rem;
+  font-size: 16px;
   margin-bottom: 12px;
   box-sizing: border-box;
   background-color: #f8fafc;

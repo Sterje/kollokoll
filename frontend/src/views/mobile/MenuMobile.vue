@@ -46,6 +46,7 @@ async function handleLogout() {
 .menu-mobile-wrapper {
   display: flex;
   flex-direction: column;
+  min-height: 100dvh;
 }
 
 .menu-mobile-content {
@@ -116,7 +117,9 @@ async function handleLogout() {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  margin-top: 15px;
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
   padding: 14px;
   border: none;
   border-radius: 10px;
