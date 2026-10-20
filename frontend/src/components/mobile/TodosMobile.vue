@@ -183,7 +183,6 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const todos = ref<Todo[]>([]);
 const loading = ref(true);
-const date = new Date();
 const newTodoTitle = ref("");
 const newTodoAuthor = ref("");
 const openAddTodoCommentModal = ref(false);
@@ -194,11 +193,6 @@ const selectedTodoId = ref<string | null>(null);
 const openAddTodoModal = ref(false);
 
 const hasTodos = computed(() => todos.value.length > 0);
-
-const formatedDate = (date: Date) =>
-  new Intl.DateTimeFormat("sv-SE", {
-    dateStyle: "short",
-  }).format(date);
 
 const formatedCreatedAt = (createdAt: string) =>
   new Intl.DateTimeFormat("sv-SE", {
