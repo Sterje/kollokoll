@@ -46,7 +46,7 @@ async function handleLogout() {
 .menu-mobile-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: calc(100dvh - 90px);
 }
 
 .menu-mobile-content {

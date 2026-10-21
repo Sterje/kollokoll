@@ -16,10 +16,10 @@
     <div v-if="loading" class="loader-container">
       <div class="loader" role="status" aria-label="Laddar"></div>
     </div>
-    <!-- <span v-else-if="!hasInfos && !loading" class="no-info">
+    <span v-else-if="!hasInfos && !loading" class="no-info">
       Ingen information för tillfället, tryck på + knappen för att lägga till
       information.
-    </span> -->
+    </span>
     <div v-else>
       <div class="list-item" v-for="info in infos" :key="info.id">
         <label class="checkbox-container">
@@ -174,6 +174,7 @@ const openAddInfoCommentModal = ref(false);
 const newInfoComment = ref("");
 const newInfoCommentAuthor = ref("");
 const selectedInfoId = ref<string | null>(null);
+const hasInfos = () => infos.value.length > 0;
 
 const openAddInfoModal = ref(false);
 
