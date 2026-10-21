@@ -1,17 +1,14 @@
 <template>
-  <div class="todos-wrapper">
-    <div class="todo-header-add">
-      <div class="todo-header">
-        <h2>{{ formatedDate(date) }}</h2>
-        <button
-          class="todo-card-add-btn"
-          aria-label="Lägg till uppgift"
-          @click="openAddModalFunction()"
-        >
-          <Plus :size="30" />
-        </button>
-      </div>
-      <div class="todo-add-btn"></div>
+  <div class="page">
+    <div class="page-header">
+      <h2>{{ formatedDate(date) }}</h2>
+      <button
+        class="icon-button"
+        aria-label="Lägg till uppgift"
+        @click="openAddModalFunction()"
+      >
+        <Plus :size="30" />
+      </button>
     </div>
     <div v-if="loading" class="loader-container">
       <div class="loader" role="status" aria-label="Laddar"></div>
@@ -20,34 +17,27 @@
       Inga uppgifter för tillfället, tryck på + knappen för att lägga till en
       uppgift.
     </span>
-    <div v-else class="todo-list">
-      <div class="todo-item" v-for="todo in todos" :key="todo.id">
+    <div v-else>
+      <div class="list-item" v-for="todo in todos" :key="todo.id">
         <label class="checkbox-container">
           <input
             type="checkbox"
-            class="todo-card-content-checkbox"
             :checked="todo.is_completed"
             @change="toggleTodo(todo, $event)"
           />
           <span class="checkmark"></span>
         </label>
-        <div class="todo-content">
-          <div class="todo-date-author-container">
-            <div class="todo-date">
-              <p class="todo-date-text">
-                {{ formatedCreatedAt(todo.created_at) }}
-              </p>
+        <div class="item-content">
+          <div class="item-meta">
+            <div class="item-date">
+              {{ formatedCreatedAt(todo.created_at) }}
             </div>
-            <div class="todo-author">
-              <p class="todo-author-text">
-                {{ todo.author }}
-              </p>
+            <div class="item-author">
+              {{ todo.author }}
             </div>
           </div>
-          <div class="todo-title">
-            <p class="todo-title-text">
-              {{ todo.title }}
-            </p>
+          <div class="item-title">
+            {{ todo.title }}
           </div>
           <div
             v-if="todo.todo_comments && todo.todo_comments.length > 0"
@@ -65,15 +55,13 @@
             </p>
           </div>
         </div>
-        <div class="todo-comment-btn">
-          <button
-            class="todo-card-content-comment-button"
-            aria-label="Kommentera"
-            @click="openAddTodoCommentFunction(todo)"
-          >
-            <MessageCircleMore :size="20" />
-          </button>
-        </div>
+        <button
+          class="icon-button"
+          aria-label="Kommentera"
+          @click="openAddTodoCommentFunction(todo)"
+        >
+          <MessageCircleMore :size="20" />
+        </button>
       </div>
     </div>
   </div>
@@ -117,10 +105,7 @@
   </Transition>
   <!-- Complete one or more todos -->
   <Transition name="slide-up">
-    <div
-      v-if="todos.some((todo) => todo.is_completed)"
-      class="completed-todos-btn-container"
-    >
+    <div v-if="todos.some((todo) => todo.is_completed)" class="action-bar">
       <button
         type="button"
         @click="deleteCompletedTodos"
@@ -176,13 +161,9 @@
   </Transition>
 </template>
 <script setup lang="ts">
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../../lib/supabase";
 import { ref, computed } from "vue";
 import { MessageCircleMore, Plus } from "lucide-vue-next";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const todos = ref<Todo[]>([]);
 const loading = ref(true);
@@ -375,355 +356,25 @@ fetchTodos();
 </script>
 
 <style scoped>
-.todos-wrapper {
+.page {
+  --item-bg: #fff196;
+  height: auto;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 12px;
-  font-family: Arial, sans-serif;
 }
 
-.back-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  color: #000000;
-  margin-bottom: 12px;
-}
-
-.todo-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.todo-card-add-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  color: #000000;
-}
-
-.todo-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 20px;
-  background-color: #fff196;
-
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-}
-
-/* Touch-anpassad kryssruta */
-.checkbox-container {
-  position: relative;
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  margin-top: 2px;
-  cursor: pointer;
-}
-
-.checkbox-container input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.checkmark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 24px;
-  width: 24px;
-  background-color: #f1f5f9;
-  border: 2px solid #cbd5e1;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
-
-.checkbox-container input:checked ~ .checkmark {
-  background-color: #10b981;
-  border-color: #10b981;
-}
-
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
-  left: 7px;
-  top: 3px;
-  width: 5px;
-  height: 10px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-.checkbox-container input:checked ~ .checkmark:after {
-  display: block;
-}
-
-.todo-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  margin-left: 8px;
-}
-
-.todo-date-author-container {
-  display: flex;
-}
-
-.todo-date-text {
+.item-date,
+.item-author {
   font-size: 14px;
-  color: #888;
-  margin-bottom: 4px;
   font-style: italic;
 }
 
-.todo-author-text {
-  font-size: 14px;
+.item-author {
   color: #475569;
-  margin-left: 8px;
   font-weight: 600;
-  font-style: italic;
-}
-
-.todo-title-text {
-  font-size: 16px;
-}
-
-.todo-card-content-comment-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  color: #000000;
-}
-
-.todo-title {
-  font-size: 16px;
-}
-
-.comments-list {
-  margin-top: 8px;
-  padding-top: 6px;
-  border-top: 1px dashed var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .comment {
   font-size: 14px;
-  color: #475569;
-  margin: 0;
-  line-height: 1.3;
   font-style: italic;
-}
-
-.comment-author {
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.loader-container {
-  display: flex;
-  justify-content: center;
-  padding: 40px 0;
-}
-
-.loader {
-  width: 36px;
-  height: 36px;
-  border: 4px solid #e0e0e0;
-  border-top-color: #000000;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Modal styles */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 100;
-  padding: 0;
-}
-
-@media (min-width: 640px) {
-  .modal-overlay {
-    align-items: center;
-    padding: 16px;
-  }
-}
-
-.modal-card {
-  width: 100%;
-  max-width: 450px;
-  background-color: var(--card-bg);
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  background-color: #ffffff;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@media (min-width: 640px) {
-  .modal-card {
-    border-radius: var(--radius-lg);
-  }
-}
-
-.modal-header h3 {
-  margin: 0 0 16px;
-  font-size: 1.15rem;
-  color: var(--text-main);
-}
-
-.modal-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: 16px;
-  margin-bottom: 12px;
-  box-sizing: border-box;
-  background-color: #f8fafc;
-  outline: none;
-  font-family: inherit;
-  transition: border-color 0.2s ease;
-  border: 2px solid #ccc;
-}
-
-.modal-input:focus {
-  border-color: var(--primary-color);
-  background-color: #ffffff;
-}
-
-.modal-textarea {
-  height: 110px;
-  resize: none;
-}
-
-.modal-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: var(--radius-md);
-  border: none;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.2s ease;
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: #ffffff;
-}
-
-.completed-todos-btn-container {
-  display: flex;
-  gap: 10px;
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: 16px;
-  max-width: 476px;
-  margin: 0 auto;
-  z-index: 50;
-  padding: 8px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.action-btn {
-  flex: 1;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 12px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: transform 0.1s ease;
-}
-
-.action-btn:active {
-  transform: scale(0.97);
-}
-
-.btn-success {
-  background-color: #10b981;
-  color: #ffffff;
-}
-
-.btn-danger {
-  background-color: #f43f5e;
-  color: #ffffff;
-}
-
-/* Animeringar */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition:
-    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.25s ease;
-}
-
-.slide-up-enter-from,
-.slide-up-leave-to {
-  transform: translateY(100%);
-  opacity: 0;
 }
 </style>
