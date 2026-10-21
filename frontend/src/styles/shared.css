@@ -1,0 +1,336 @@
+/* Gemensamma stilar för listvyerna (Info, Att göra, Ikväll). Sidspecifikt ligger kvar i respektive komponent. */
+
+/* Sida */
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  font-family: Arial, sans-serif;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Knappar utan bakgrund (tillbaka, lägg till, kommentera) */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: #000000;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #000000;
+  margin-bottom: 12px;
+}
+
+/* Listpost. Färgen sätts per sida via --item-bg. */
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 20px;
+  background-color: var(--item-bg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.item-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-left: 8px;
+}
+
+.item-meta {
+  display: flex;
+}
+
+.item-date {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.item-author {
+  font-size: 12px;
+  color: #888;
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.item-title {
+  font-size: 16px;
+}
+
+/* Kryssruta */
+.checkbox-container {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.checkbox-container input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 24px;
+  width: 24px;
+  background-color: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Kommentarer */
+.comments-list {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.comment {
+  font-size: 0.8rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.comment-author {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* Laddare */
+.loader-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.loader {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #000000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 100;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 450px;
+  background-color: var(--card-bg);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@media (min-width: 640px) {
+  .modal-overlay {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .modal-card {
+    border-radius: var(--radius-lg);
+  }
+}
+
+.modal-header h3 {
+  margin: 0 0 16px;
+  font-size: 1.15rem;
+  color: var(--text-main);
+}
+
+/* 16px hindrar iOS från att zooma in vid fokus */
+.modal-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ccc;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  margin-bottom: 12px;
+  background-color: #f8fafc;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.modal-input:focus {
+  border-color: var(--primary-color);
+  background-color: #ffffff;
+}
+
+.modal-textarea {
+  height: 110px;
+  resize: none;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    opacity 0.2s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* Åtgärdsfält för markerade poster */
+.action-bar {
+  display: flex;
+  gap: 10px;
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 16px;
+  max-width: 476px;
+  margin: 0 auto;
+  z-index: 50;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.action-btn {
+  flex: 1;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: transform 0.1s ease;
+}
+
+.action-btn:active {
+  transform: scale(0.97);
+}
+
+.btn-success {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.btn-danger {
+  background-color: #f43f5e;
+  color: #ffffff;
+}
+
+/* Övergångar */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s ease;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}

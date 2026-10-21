@@ -25,33 +25,6 @@
 import { RotateCw } from "lucide-vue-next";
 </script>
 <style scoped>
-/* .mobile-navbar {
-  background-color: #ffffff;
-  padding: 0.5rem;
-
-  .mobile-navbar-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .mobile-navbar-logo {
-      width: 25%;
-      .mobile-navbar-logo-img {
-        height: 75px;
-        width: auto;
-      }
-    }
-    .mobile-navbar-header {
-      width: 50%;
-      text-align: center;
-      font-family: Arial, sans-serif;
-    }
-    .mobile-navbar-spacer {
-      width: 25%;
-    }
-  }
-} */
-
 .mobile-navbar {
   background-color: #ffffff;
   padding: 0.5rem;
