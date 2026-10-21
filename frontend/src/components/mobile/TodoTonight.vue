@@ -176,13 +176,9 @@
   </Transition>
 </template>
 <script setup lang="ts">
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../../lib/supabase";
 import { ref, computed } from "vue";
 import { MessageCircleMore, Plus } from "lucide-vue-next";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const todos = ref<Todo[]>([]);
 const loading = ref(true);

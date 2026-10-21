@@ -171,13 +171,9 @@
   </Transition>
 </template>
 <script setup lang="ts">
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../../lib/supabase";
 import { ref, watch } from "vue";
 import { MessageCircleMore, Plus, ChevronLeft } from "lucide-vue-next";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const infos = ref<Info[]>([]);
 const loading = ref(true);
